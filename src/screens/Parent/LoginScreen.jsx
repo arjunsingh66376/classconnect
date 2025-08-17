@@ -7,13 +7,15 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* Centered Blue Parent Login Title */}
+      <Text style={styles.panelTitle}>Parent Login</Text>
+
       <View style={styles.card}>
         {/* Logo Section */}
         <Image
-          source={require("../../assets/logo_standford.png")} // REPLACE WITH YOUR LOGO
+          source={require("../../assets/logo_standford.png")}
           style={styles.logo}
         />
-
         {/* Email/Phone Label & Input */}
         <Text style={styles.label}>Email or Phone Number</Text>
         <TextInput
@@ -23,7 +25,6 @@ const LoginScreen = ({ navigation }) => {
           onChangeText={setEmailOrPhone}
           keyboardType="email-address"
         />
-
         {/* OTP Label & Input */}
         <Text style={styles.label}>One-Time Password (OTP)</Text>
         <TextInput
@@ -34,19 +35,16 @@ const LoginScreen = ({ navigation }) => {
           maxLength={6}
           onChangeText={setOtp}
         />
-
         {/* Log In Button */}
         <TouchableOpacity style={styles.loginBtn}>
           <Text style={styles.loginBtnText}>Log In</Text>
         </TouchableOpacity>
-
         {/* OR Separator */}
         <View style={styles.separator}>
           <View style={styles.separatorLine}></View>
           <Text style={styles.orText}>or</Text>
           <View style={styles.separatorLine}></View>
         </View>
-
         {/* Switch to Student Login */}
         <TouchableOpacity
           style={styles.switchBtn}
@@ -54,7 +52,6 @@ const LoginScreen = ({ navigation }) => {
         >
           <Text style={styles.switchBtnText}>Switch to Student Login</Text>
         </TouchableOpacity>
-
         {/* Sign Up Link */}
         <TouchableOpacity>
           <Text style={styles.signupText}>New User? Sign Up Here</Text>
@@ -70,6 +67,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f4f7",
     justifyContent: "center",
     alignItems: "center"
+  },
+  panelTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#447ca8", // matches button and blue accent
+    textAlign: "center",
+    marginBottom: 36
   },
   card: {
     width: "92%",
@@ -109,7 +113,7 @@ const styles = StyleSheet.create({
   },
   loginBtn: {
     width: "100%",
-    backgroundColor: "#447ca8", // match blue in screenshot
+    backgroundColor: "#447ca8",
     borderRadius: 8,
     paddingVertical: 15,
     alignItems: "center",
