@@ -13,6 +13,7 @@ import Card from "../../Components/Card";
 import Header from "../../Components/Header";
 import Button from "../../Components/Button";
 import { getFees } from "../../api/fees";
+import { getStudentInfo } from "../../api/studentinfo";
 import { mockAttendance, mockReports } from "../../utils/MockData";
 
 const { width: screenWidth } = Dimensions.get("window");
@@ -20,9 +21,11 @@ const { width: screenWidth } = Dimensions.get("window");
 const DashboardScreen = ({ navigation }) => {
   const studentId = "101";
   const [fees, setFees] = useState(null);
+  const [studentInfo, setStudentInfo] = useState(null);
 
   useEffect(() => {
     getFees(studentId).then(setFees);
+    getStudentInfo(studentId).then(setStudentInfo);
   }, []);
 
   return (
@@ -30,16 +33,29 @@ const DashboardScreen = ({ navigation }) => {
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 80 }}>
         {/* Profile Section fully stretched */}
         <View style={[styles.profileCardContainer, { width: screenWidth }]}>
-          <View style={styles.profileCard}>
-            <Image
-              source={require("../../assets/student1.jpg")}
-              style={styles.avatar}
-            />
-            <View>
-              <Text style={styles.profileName}>Amit Sharma</Text>
-              <Text style={styles.profileDetails}>Class: 8th, Roll No: 101</Text>
+          {!studentInfo ? (
+            <Text>Loading...</Text>
+          ) : (
+            <View style={styles.profileCard}>
+              <Image
+                source={{ uri: studentInfo.profilePicUrl }}
+                style={styles.avatar}
+              />
+              <View>
+                <Text style={styles.profileName}>{studentInfo.name}</Text>
+                <Text style={styles.profileDetails}>
+                  <Text>Class: {studentInfo.class}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</Text>
+                  <Text>
+                    {studentInfo.section
+                      ? `Section: ${studentInfo.section}`
+                      : `Stream: ${studentInfo.stream}`}
+                  </Text>
+                </Text>
+                <Text style={styles.profileDetails}>Roll No: {studentInfo.rollNumber}</Text>
+                <Text style={styles.profileDetails}>Mobile: {studentInfo.registeredMobile}</Text>
+              </View>
             </View>
-          </View>
+          )}
         </View>
 
         {/* Other content with padding */}
