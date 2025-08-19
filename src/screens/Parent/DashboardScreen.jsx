@@ -19,7 +19,7 @@ const DashboardScreen = ({ navigation }) => {
       {/* Profile Section */}
       <View style={styles.profileCard}>
         <Image
-          source={require("../../assets/logo_standford.png")} // use a placeholder image
+          source={require("../../assets/student1.jpg")} // use a placeholder image
           style={styles.avatar}
         />
         <View>
@@ -52,11 +52,11 @@ const DashboardScreen = ({ navigation }) => {
 
       {/* Reports Card */}
       <Card style={styles.reportCard}>
-        <Text style={styles.sectionTitle}>📊 Reports (Term 1)</Text>
+        <Text style={styles.sectionTitle}>📊 Reports Card (Term 1)</Text>
         {Object.entries(mockReports[studentId].term1).map(([sub, mark]) => (
           <Text key={sub} style={styles.info}>{sub}: {mark}</Text>
         ))}
-        <Button text="View Full Report" onPress={() => navigation.navigate("ReportsScreen")} />
+        <Button text="View Full Report" onPress={() => navigation.navigate("Report")} />
       </Card>
     </ScrollView>
   );
