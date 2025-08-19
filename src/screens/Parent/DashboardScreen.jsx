@@ -6,9 +6,9 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  SafeAreaView,
   Dimensions
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Card from "../../Components/Card";
 import Header from "../../Components/Header";
 import Button from "../../Components/Button";
