@@ -65,14 +65,12 @@ const DashboardScreen = ({ navigation }) => {
     });
   }, []);
 
-  // Helper to get extension from mime type
   const getExtensionFromMime = (mime) => {
     if (!mime) return "jpg";
     const ext = mime.split("/")[1];
     return ext && ext.length < 6 ? ext : "jpg";
   };
 
-  // Upload cropped photo, always supplies file name and mime type
   const uploadPhoto = async (studentId, uri, mime) => {
     const ext = getExtensionFromMime(mime);
     const filename = `student_${studentId}.${ext}`;
@@ -121,7 +119,7 @@ const DashboardScreen = ({ navigation }) => {
       }
     } catch (err) {
       if (err.code === "E_PICKER_CANCELLED") {
-        // user cancelled - do nothing
+        // user cancelled
       } else {
         Alert.alert("ImagePicker Error", err.message || "Unknown error");
       }
@@ -153,13 +151,15 @@ const DashboardScreen = ({ navigation }) => {
                   style={styles.avatar}
                 />
               </TouchableOpacity>
-              <View style={{ flex: 1 }}>
+              <View style={styles.studentInfoContainer}>
                 <Text style={styles.profileName}>{studentInfo.name}</Text>
                 <Text style={styles.profileDetails}>
                   <Text>Class: {studentInfo.class} </Text>
-                  {studentInfo.section
-                    ? <Text>Section: {studentInfo.section}</Text>
-                    : <Text>Stream: {studentInfo.stream}</Text>}
+                  {studentInfo.section ? (
+                    <Text>Section: {studentInfo.section}</Text>
+                  ) : (
+                    <Text>Stream: {studentInfo.stream}</Text>
+                  )}
                 </Text>
                 <Text style={styles.profileDetails}>Roll No: {studentInfo.rollNumber}</Text>
                 <Text style={styles.profileDetails}>Mobile: {studentInfo.registeredMobile}</Text>
@@ -196,8 +196,11 @@ const DashboardScreen = ({ navigation }) => {
       </ScrollView>
 
       <Modal visible={showModal} animationType="fade" transparent onRequestClose={() => setShowModal(false)}>
-        <View style={styles.modalBg}>
-          <TouchableOpacity style={styles.modalBg} onPress={() => setShowModal(false)} activeOpacity={1} />
+        <TouchableOpacity
+          style={styles.modalBg}
+          activeOpacity={1}
+          onPressOut={() => setShowModal(false)}
+        >
           <View style={styles.modalContent}>
             <Image
               source={profilePic ? { uri: profilePic } : require("../../assets/default_user.png")}
@@ -224,7 +227,7 @@ const DashboardScreen = ({ navigation }) => {
               </TouchableOpacity>
             )}
           </View>
-        </View>
+        </TouchableOpacity>
       </Modal>
 
       <View style={styles.bottomNav}>
@@ -246,14 +249,8 @@ const DashboardScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#f9f9f9",
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#f9f9f9",
-  },
+  safeArea: { flex: 1, backgroundColor: "#f9f9f9" },
+  container: { flex: 1, backgroundColor: "#f9f9f9" },
   profileCardContainer: {
     backgroundColor: "#fff",
     borderRadius: 12,
@@ -266,52 +263,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
   },
-  profileCard: {
-    flexDirection: "row",
-    alignItems: "center",
+  profileCard: { flexDirection: "row", alignItems: "center" },
+  avatar: { width: 70, height: 70, borderRadius: 35, backgroundColor: "#eee" },
+  studentInfoContainer: {
+    marginLeft: 15,
+    flex: 1,
   },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#eee",
-  },
-  profileName: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  profileDetails: {
-    fontSize: 15,
-    color: "#666",
-  },
-  paddedContent: {
-    paddingHorizontal: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  info: {
-    fontSize: 16,
-    marginBottom: 4,
-  },
-  alert: {
-    color: "#d32f2f",
-    fontWeight: "bold",
-  },
-  feeCard: {
-    borderLeftWidth: 5,
-    borderLeftColor: "#2196F3",
-  },
-  attendanceCard: {
-    borderLeftWidth: 5,
-    borderLeftColor: "#4CAF50",
-  },
-  reportCard: {
-    borderLeftWidth: 5,
-    borderLeftColor: "#FFC107",
-  },
+  profileName: { fontSize: 20, fontWeight: "bold" },
+  profileDetails: { fontSize: 15, color: "#666" },
+  paddedContent: { paddingHorizontal: 16 },
+  sectionTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 8 },
+  info: { fontSize: 16, marginBottom: 4 },
+  alert: { color: "#d32f2f", fontWeight: "bold" },
+  feeCard: { borderLeftWidth: 5, borderLeftColor: "#2196F3" },
+  attendanceCard: { borderLeftWidth: 5, borderLeftColor: "#4CAF50" },
+  reportCard: { borderLeftWidth: 5, borderLeftColor: "#FFC107" },
   bottomNav: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -325,19 +291,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#eaeaea",
   },
-  navTab: {
-    alignItems: "center",
-    padding: 8,
-  },
-  navIcon: {
-    width: 22,
-    height: 22,
-    marginBottom: 3,
-  },
-  navText: {
-    fontSize: 13,
-    color: "#888",
-  },
+  navTab: { alignItems: "center", padding: 8 },
+  navIcon: { width: 22, height: 22, marginBottom: 3 },
+  navText: { fontSize: 13, color: "#888" },
   modalBg: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.75)",
@@ -345,12 +301,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    position: "absolute",
-    top: "25%",
-    left: 0,
-    right: 0,
-    alignItems: "center",
+    backgroundColor: "transparent",
     justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 40,
+    paddingVertical: 20,
   },
   dpLarge: {
     width: 260,
