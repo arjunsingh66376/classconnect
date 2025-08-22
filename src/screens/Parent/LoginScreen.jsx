@@ -110,6 +110,10 @@ const ParentLoginScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.switchBtn} onPress={() => navigation.navigate("StudentLogin")}>
           <Text style={styles.switchBtnText}>Switch to Student Login</Text>
         </TouchableOpacity>
+        {/* NEW BUTTON FOR ADMIN/TEACHER LOGIN */}
+        <TouchableOpacity style={styles.switchBtn} onPress={() => navigation.navigate("AdminLogin")}>
+          <Text style={styles.switchBtnText}>Switch to Admin Login</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
