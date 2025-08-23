@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 
 const BACKEND_BASE_URL = "http://192.168.1.211:5000"; // Your backend IP or URL
 
@@ -23,7 +32,8 @@ const AdminLoginScreen = ({ navigation }) => {
       const data = await response.json();
       if (data.success) {
         Alert.alert("Login Success", "Welcome, Teacher!");
-        navigation.replace("Teacherdashboard");
+        // Pass username to TeacherDashboard through navigation params
+        navigation.replace("Teacherdashboard", { username: username.trim() });
       } else {
         Alert.alert("Error", data.error || "Invalid credentials");
       }
@@ -38,7 +48,10 @@ const AdminLoginScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.panelTitle}>Admin Login</Text>
       <View style={styles.card}>
-        <Image source={require("../../assets/logo_standford.png")} style={styles.logo} />
+        <Image
+          source={require("../../assets/logo_standford.png")}
+          style={styles.logo}
+        />
         <Text style={styles.label}>Username</Text>
         <TextInput
           style={styles.input}
@@ -47,6 +60,7 @@ const AdminLoginScreen = ({ navigation }) => {
           onChangeText={setUsername}
           editable={!loading}
           placeholderTextColor="#999"
+          autoCapitalize="none"
         />
         <Text style={styles.label}>Password</Text>
         <TextInput
@@ -60,23 +74,42 @@ const AdminLoginScreen = ({ navigation }) => {
           autoCapitalize="none"
           placeholderTextColor="#999"
         />
-        <TouchableOpacity style={styles.loginBtn} onPress={handleAdminLogin} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginBtnText}>Log In</Text>}
+        <TouchableOpacity
+          style={styles.loginBtn}
+          onPress={handleAdminLogin}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.loginBtnText}>Log In</Text>
+          )}
         </TouchableOpacity>
         <View style={styles.separator}>
           <View style={styles.separatorLine} />
           <Text style={styles.orText}>or</Text>
           <View style={styles.separatorLine} />
         </View>
-        <TouchableOpacity style={styles.switchBtn} onPress={() => navigation.navigate("Login")}>
+        <TouchableOpacity
+          style={styles.switchBtn}
+          onPress={() => navigation.navigate("Login")}
+        >
           <Text style={styles.switchBtnText}>Switch to Parent Login</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.switchBtn} onPress={() => navigation.navigate("StudentLogin")}>
+        <TouchableOpacity
+          style={styles.switchBtn}
+          onPress={() => navigation.navigate("StudentLogin")}
+        >
           <Text style={styles.switchBtnText}>Switch to Student Login</Text>
         </TouchableOpacity>
         {/* New Admin registration button */}
-        <TouchableOpacity style={[styles.switchBtn, styles.registerBtn]} onPress={() => navigation.navigate("AdminRegistration")}>
-          <Text style={[styles.switchBtnText, styles.registerBtnText]}>New Admin? Register here</Text>
+        <TouchableOpacity
+          style={[styles.switchBtn, styles.registerBtn]}
+          onPress={() => navigation.navigate("AdminRegistration")}
+        >
+          <Text style={[styles.switchBtnText, styles.registerBtnText]}>
+            New Admin? Register here
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -84,8 +117,19 @@ const AdminLoginScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f2f4f7", justifyContent: "center", alignItems: "center" },
-  panelTitle: { fontSize: 28, fontWeight: "bold", color: "#008000", textAlign: "center", marginBottom: 36 },
+  container: {
+    flex: 1,
+    backgroundColor: "#f2f4f7",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  panelTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#008000",
+    textAlign: "center",
+    marginBottom: 36,
+  },
   card: {
     width: "92%",
     backgroundColor: "#fff",
@@ -99,7 +143,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: { width: 80, height: 80, resizeMode: "contain", marginBottom: 18 },
-  label: { alignSelf: "flex-start", fontSize: 15, fontWeight: "bold", marginBottom: 3, marginTop: 10, color: "#26344a" },
+  label: {
+    alignSelf: "flex-start",
+    fontSize: 15,
+    fontWeight: "bold",
+    marginBottom: 3,
+    marginTop: 10,
+    color: "#26344a",
+  },
   input: {
     width: "100%",
     borderWidth: 1,
@@ -109,10 +160,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fafafa",
     marginBottom: 10,
     fontSize: 15,
-    color: "#000"
+    color: "#000",
   },
   passwordInput: {
-    color: "#000"
+    color: "#000",
   },
   loginBtn: {
     width: "100%",
@@ -124,7 +175,12 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   loginBtnText: { color: "#fff", fontSize: 17, fontWeight: "bold" },
-  separator: { flexDirection: "row", alignItems: "center", width: "100%", marginBottom: 15 },
+  separator: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    marginBottom: 15,
+  },
   separatorLine: { flex: 1, height: 1, backgroundColor: "#e0e0e0" },
   orText: { marginHorizontal: 12, fontSize: 15, color: "#aaa" },
   switchBtn: {
@@ -145,7 +201,7 @@ const styles = StyleSheet.create({
   registerBtnText: {
     color: "#fff",
     fontWeight: "bold",
-  }
+  },
 });
 
 export default AdminLoginScreen;
