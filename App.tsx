@@ -8,6 +8,7 @@ import StudentLoginScreen from './src/screens/Student/StudentLoginscreen';
 import ReportScreen from './src/screens/Parent/ReportScreen';
 import AdminLoginScreen from './src/screens/Admin/AdminLoginScreen'
 import AdminRegistrationScreen from './src/screens/Admin/AdminRegistrationScreen'
+import EditRecordScreen from './src/screens/Admin/EditRecordScreen'
 
 import TeacherDashboard from './src/screens/Admin/TeacherDashboard'
 const Stack = createNativeStackNavigator();
@@ -23,6 +24,7 @@ const App = () => {
         <Stack.Screen name="AdminRegistration" component={AdminRegistrationScreen} />
         <Stack.Screen name="Dashboard" component={DashboardScreen} />
         <Stack.Screen name="Teacherdashboard" component={TeacherDashboard} />
+        <Stack.Screen name="EditRecord" component={EditRecordScreen} />
         <Stack.Screen name="Report" component={ReportScreen} />
       </Stack.Navigator>
     </NavigationContainer>

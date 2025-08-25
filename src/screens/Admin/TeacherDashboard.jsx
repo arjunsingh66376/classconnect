@@ -18,6 +18,7 @@ import Card from "../../Components/Card";
 import Header from "../../Components/Header";
 import ButtonComp from "../../Components/Button";
 import ImagePicker from "react-native-image-crop-picker";
+import { useNavigation } from "@react-navigation/native";
 
 const { width: screenWidth } = Dimensions.get("window");
 const BACKEND_URL = "http://192.168.1.211:5000"; // Adjust backend
@@ -208,7 +209,7 @@ const TeacherDashboard = ({ navigation, route }) => {
               />
               <EditButtonWithLabel
                 label="Edit Record"
-                onPress={() => Alert.alert("Edit Fee clicked")}
+                onPress={() => navigation.navigate("EditRecord")}
               />
             </View>
           </Card>
@@ -221,13 +222,13 @@ const TeacherDashboard = ({ navigation, route }) => {
             <View style={styles.btnRow}>
               <ButtonComp
                 text="View Attendance"
-                onPress={() => Alert.alert("Feature coming soon!")}
+                onPress={() => Alert.alert("feature is  coming soon")}
                 style={styles.greenButton}
                 textStyle={styles.greenButtonText}
               />
               <EditButtonWithLabel
                 label="Edit Record"
-                onPress={() => Alert.alert("Edit Attendance clicked")}
+                onPress={() =>navigation.navigate("EditRecord")}
               />
             </View>
           </Card>
@@ -257,13 +258,13 @@ const TeacherDashboard = ({ navigation, route }) => {
             <View style={styles.btnRow}>
               <ButtonComp
                 text="View Full Report"
-                onPress={() => Alert.alert("Feature coming soon!")}
+                onPress={() => Alert.alert("feature is  coming soon")}
                 style={styles.greenButton}
                 textStyle={styles.greenButtonText}
               />
               <EditButtonWithLabel
                 label="Edit Record"
-                onPress={() => Alert.alert("Edit Report clicked")}
+                onPress={() => navigation.navigate("EditRecord")}
               />
             </View>
           </Card>
