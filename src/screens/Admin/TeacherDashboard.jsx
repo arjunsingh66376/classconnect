@@ -19,9 +19,10 @@ import Header from "../../Components/Header";
 import ButtonComp from "../../Components/Button";
 import ImagePicker from "react-native-image-crop-picker";
 import { useNavigation } from "@react-navigation/native";
+import Bottomtabnav from '../../Components/Botttomtabnav'
 
 const { width: screenWidth } = Dimensions.get("window");
-const BACKEND_URL = "http://192.168.1.211:5000"; // Adjust backend
+const BACKEND_URL = "http://192.168.1.211:5000"; // Your backend IP
 
 async function requestPermission() {
   if (Platform.OS !== "android") return true;
@@ -138,6 +139,32 @@ const TeacherDashboard = ({ navigation, route }) => {
     ]);
   };
 
+  // Edit button component
+  const EditButtonWithLabel = ({ onPress, label }) => (
+    <TouchableOpacity style={styles.iconBtnWrapper} onPress={onPress}>
+      <View style={styles.iconBtnCircle}>
+        <Image
+          source={require("../../assets/pencil.png")}
+          style={styles.iconBtnIcon}
+        />
+      </View>
+      <Text style={styles.iconBtnLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
+
+  // Add Data button component
+  const AddDataButtonWithLabel = ({ onPress, label }) => (
+    <TouchableOpacity style={styles.iconBtnWrapper} onPress={onPress}>
+      <View style={styles.iconBtnCircle}>
+        <Image
+          source={require("../../assets/plus.png")}
+          style={styles.iconBtnIcon}
+        />
+      </View>
+      <Text style={styles.iconBtnLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
+
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -154,19 +181,6 @@ const TeacherDashboard = ({ navigation, route }) => {
       </View>
     );
   }
-
-  // Custom Edit button component for consistency
-  const EditButtonWithLabel = ({ onPress, label }) => (
-    <TouchableOpacity style={styles.editBtnWrapper} onPress={onPress}>
-      <View style={styles.editBtnCircle}>
-        <Image
-          source={require("../../assets/pencil.png")}
-          style={styles.editBtnIcon}
-        />
-      </View>
-      <Text style={styles.editBtnLabel}>{label}</Text>
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -194,7 +208,7 @@ const TeacherDashboard = ({ navigation, route }) => {
           <Header title="Teacher Dashboard" />
 
           {/* Fees */}
-          <Card style={styles.card}>
+          <Card style={styles.feeCard}>
             <Text style={styles.sectionTitle}>💰 Fees</Text>
             <Text style={styles.info}>Paid: ₹{teacherInfo.fees?.totalPaid || 0}</Text>
             <Text style={[styles.info, teacherInfo.fees?.remainingFees > 0 && styles.alert]}>
@@ -211,30 +225,38 @@ const TeacherDashboard = ({ navigation, route }) => {
                 label="Edit Record"
                 onPress={() => navigation.navigate("EditRecord")}
               />
+              <AddDataButtonWithLabel
+                label="Add "
+                onPress={() => navigation.navigate("StudentDatabase")}
+              />
             </View>
           </Card>
 
           {/* Attendance */}
-          <Card style={styles.card}>
+          <Card style={styles.attendanceCard}>
             <Text style={styles.sectionTitle}>📅 Attendance</Text>
             <Text style={styles.info}>Present: {teacherInfo.attendanceSummary?.presentCount || 0}</Text>
             <Text style={styles.info}>Absent: {teacherInfo.attendanceSummary?.absentCount || 0}</Text>
             <View style={styles.btnRow}>
               <ButtonComp
                 text="View Attendance"
-                onPress={() => Alert.alert("feature is  coming soon")}
+                onPress={() => Alert.alert("feature is coming soon")}
                 style={styles.greenButton}
                 textStyle={styles.greenButtonText}
               />
               <EditButtonWithLabel
                 label="Edit Record"
-                onPress={() =>navigation.navigate("EditRecord")}
+                onPress={() => navigation.navigate("EditRecord")}
+              />
+              <AddDataButtonWithLabel
+                label="Add  "
+                onPress={() => navigation.navigate("StudentDatabase")}
               />
             </View>
           </Card>
 
           {/* Report Card */}
-          <Card style={styles.card}>
+          <Card style={styles.reportCard}>
             <Text style={styles.sectionTitle}>📊 Report Card</Text>
             {teacherInfo.reportCards && teacherInfo.reportCards.length > 0 ? (
               teacherInfo.reportCards.map((report, idx) => (
@@ -258,13 +280,17 @@ const TeacherDashboard = ({ navigation, route }) => {
             <View style={styles.btnRow}>
               <ButtonComp
                 text="View Full Report"
-                onPress={() => Alert.alert("feature is  coming soon")}
+                onPress={() => Alert.alert("feature is coming soon")}
                 style={styles.greenButton}
                 textStyle={styles.greenButtonText}
               />
               <EditButtonWithLabel
                 label="Edit Record"
                 onPress={() => navigation.navigate("EditRecord")}
+              />
+              <AddDataButtonWithLabel
+                label="Add "
+                onPress={() => navigation.navigate("StudentDatabase")}
               />
             </View>
           </Card>
@@ -304,20 +330,7 @@ const TeacherDashboard = ({ navigation, route }) => {
       </ScrollView>
 
       {/* Bottom nav */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navTab} onPress={() => navigation.navigate("Dashboard")}>
-          <Image source={require("../../assets/home.png")} style={styles.navIcon} />
-          <Text style={[styles.navText, { color: "#008000" }]}>Dashboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navTab} onPress={() => navigation.navigate("Notifications")}>
-          <Image source={require("../../assets/notification.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>Notifications</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navTab} onPress={() => navigation.navigate("Profile")}>
-          <Image source={require("../../assets/profile.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>Profile</Text>
-        </TouchableOpacity>
-      </View>
+     <Bottomtabnav/>
     </SafeAreaView>
   );
 };
@@ -346,7 +359,27 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 18, fontWeight: "bold" },
   info: { fontSize: 16, marginBottom: 6 },
   alert: { color: "#d32f2f", fontWeight: "bold" },
-  card: {
+  feeCard: {
+    borderLeftWidth: 5,
+    borderLeftColor: "#008000",
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 16,
+    elevation: 2,
+    backgroundColor: "#fff",
+  },
+  attendanceCard: {
+    borderLeftWidth: 5,
+    borderLeftColor: "#008000",
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 16,
+    elevation: 2,
+    backgroundColor: "#fff",
+  },
+  reportCard: {
+    borderLeftWidth: 5,
+    borderLeftColor: "#008000",
     borderRadius: 10,
     padding: 12,
     marginBottom: 16,
@@ -357,6 +390,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     marginTop: 10,
+    alignItems: "center",
   },
   greenButton: {
     backgroundColor: "#008000",
@@ -365,12 +399,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     justifyContent: "center",
   },
-  editBtnWrapper: {
+  greenButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 15,
+    textAlign: "center",
+  },
+  iconBtnWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: 10,
+    marginLeft: 8,
   },
-  editBtnCircle: {
+  iconBtnCircle: {
     backgroundColor: "#008000",
     width: 38,
     height: 38,
@@ -378,12 +418,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  editBtnIcon: {
+  iconBtnIcon: {
     width: 20,
     height: 20,
     tintColor: "#fff",
   },
-  editBtnLabel: {
+  iconBtnLabel: {
     marginLeft: 8,
     color: "#008000",
     fontWeight: "600",
