@@ -1,284 +1,412 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
-  View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, Dimensions,
+  View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert,
   TouchableOpacity, TextInput,
 } from "react-native";
 import { Table, Row } from "react-native-table-component";
 import Orientation from "react-native-orientation-locker";
 
-// --- Config ---
 const BACKEND_URL = "http://192.168.1.211:5000";
-const widthArr = [80, 60, 100, 80, 60, 60, 200, 90, 120, 100, 80, 80];
+
+const widthArr = [
+  100, // Admission ID
+  60,  // Class
+  60,  // Section
+  80,  // Roll No
+  120, // Name
+  85,  // Present
+  85,  // Absent
+  105, // Total
+  90,  // Percentage
+  110, // Teacher
+  100, // Quarterly Fee
+  105, // Yearly Fee
+  100, // Total Fees
+  80,  // Paid
+  80   // Due
+];
 
 export default function StudentDatabaseScreen() {
   const [tableHead] = useState([
-    'Class', 'Roll No', 'Name', 'Attendance', 'Present', 'Absent', 'Subjects', 'Percentage',
-    'Class Teacher', 'Total Fees', 'Fees Paid', 'Fees Due'
+    "Admission ID",
+    "Class",
+    "Section",
+    "Roll No",
+    "Name",
+    "Present",
+    "Absent",
+    "Total",
+    "Percentage",
+    "Teacher",
+    "Quarterly Fee",
+    "Yearly Fee",
+    "Total Fees",
+    "Paid",
+    "Due",
   ]);
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [addingRow, setAddingRow] = useState(false);
+  const [adding, setAdding] = useState(false);
   const [newRow, setNewRow] = useState({
-    studentClass: '', rollNo: '', studentName: '', attendance: '', present: '', absent: '', subjects: '',
-    percentage: '', classTeacher: '', totalFees: '', feesPaid: '', feesDue: '',
+    admissionId: "",
+    studentClass: "",
+    section: "",
+    rollNo: "",
+    studentName: "",
+    attendancePresent: "",
+    attendanceAbsent: "",
+    attendanceTotal: "",
+    percentage: "",
+    classTeacher: "",
+    quarterlyFee: "",
+    totalYearlyFee: "",
+    totalFees: "",
+    feesPaid: "",
+    feesDue: "",
   });
 
-  // Input refs for navigation
-  const firstInputRef = useRef(null);
-  const rollNoRef = useRef(null);
-  const nameRef = useRef(null);
-  const attendanceRef = useRef(null);
-  const presentRef = useRef(null);
-  const absentRef = useRef(null);
-  const subjectsRef = useRef(null);
-  const percentageRef = useRef(null);
-  const classTeacherRef = useRef(null);
-  const totalFeesRef = useRef(null);
-  const feesPaidRef = useRef(null);
-  const feesDueRef = useRef(null);
+  const refs = {
+    admissionIdRef: useRef(null),
+    classRef: useRef(null),
+    sectionRef: useRef(null),
+    rollNoRef: useRef(null),
+    nameRef: useRef(null),
+    attendancePresentRef: useRef(null),
+    attendanceAbsentRef: useRef(null),
+    attendanceTotalRef: useRef(null),
+    percentageRef: useRef(null),
+    classTeacherRef: useRef(null),
+    quarterlyFeeRef: useRef(null),
+    totalYearlyFeeRef: useRef(null),
+    totalFeesRef: useRef(null),
+    feesPaidRef: useRef(null),
+    feesDueRef: useRef(null),
+  };
 
-  useEffect(() => {
-    // Enable auto rotate for the screen
-    Orientation.unlockAllOrientations();
-    return () => {
-      // (Optional) Lock to portrait, landscape, etc. when leaving this screen
-    };
-  }, []);
-
+  useEffect(() => { Orientation.unlockAllOrientations(); }, []);
   useEffect(() => { fetchStudents(); }, []);
   useEffect(() => {
-    if (addingRow && firstInputRef.current && typeof firstInputRef.current.focus === "function") {
-      firstInputRef.current.focus();
+    if (adding && refs.admissionIdRef.current) {
+      refs.admissionIdRef.current.focus();
     }
-  }, [addingRow]);
+  }, [adding]);
 
+  // Correct mapping to fields from your MongoDB/back-end response
   const fetchStudents = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/api/students`);
+      const res = await fetch(`${BACKEND_URL}/api/studentdatabase/all`);
       const students = await res.json();
-      const rows = students.sort((a, b) => {
-        if (a.studentClass !== b.studentClass)
-          return a.studentClass.localeCompare(b.studentClass);
-        return (parseInt(a.rollNo) || 0) - (parseInt(b.rollNo) || 0);
-      }).map(s => ([
-        s.studentClass, s.rollNo, s.studentName, s.attendance, s.present || '', s.absent || '',
-        (s.subjects || []).map(sub => `${sub.name}:${sub.score}/${sub.max}`).join('\n'),
-        s.percentage, s.classTeacher, s.totalFees, s.feesPaid, s.feesDue,
-      ]));
+      const rows = students
+        .sort((a, b) => {
+          if ((a.class || "") !== (b.class || ""))
+            return (a.class || "").localeCompare(b.class || "");
+          if ((a.section || "") !== (b.section || ""))
+            return (a.section || "").localeCompare(b.section || "");
+          return (parseInt(a.rollNo) || 0) - (parseInt(b.rollNo) || 0);
+        })
+        .map((s) => [
+          s.admissionId || "",
+          s.class || "",
+          s.section || "",
+          s.rollNo || "",
+          s.name || "",
+          (s.attendance && s.attendance[0] && s.attendance[0].present) || "",
+          (s.attendance && s.attendance[0] && s.attendance[0].absent) || "",
+          (s.attendance && s.attendance[0] && s.attendance[0].total) || "",
+          s.percentage || "",
+          s.classTeacher || "",
+          (s.fees && s.fees.quarterlyFee !== undefined) ? s.fees.quarterlyFee : "",
+          (s.fees && s.fees.totalYearlyFee !== undefined) ? s.fees.totalYearlyFee : "",
+          s.totalFees || "",
+          s.feesPaid || "",
+          s.feesDue || "",
+        ]);
       setTableData(rows);
     } catch (e) {
-      Alert.alert('Error', 'Failed to fetch students: ' + e.message);
+      Alert.alert("Error", "Failed to fetch students: " + e.message);
     }
     setLoading(false);
   };
 
   const onChangeNewRow = (field, value) => {
-    setNewRow(prev => ({ ...prev, [field]: value }));
+    setNewRow((prev) => ({ ...prev, [field]: value }));
   };
 
-  const onSaveNewRow = async () => {
-    if (!newRow.rollNo || !newRow.studentName || !newRow.studentClass) {
-      Alert.alert("Validation Error", "Roll No, Name, and Class are required.");
-      return;
+  const onSave = async () => {
+    // Validation
+    const requiredFields = [
+      "admissionId", "studentClass", "section", "rollNo", "studentName",
+      "attendancePresent", "attendanceAbsent", "attendanceTotal",
+      "quarterlyFee", "totalYearlyFee"
+    ];
+    for (const field of requiredFields) {
+      if (!newRow[field]) {
+        Alert.alert("Validation Error", `${field} is required.`);
+        return;
+      }
     }
+
     try {
-      const subjectsArray = newRow.subjects
-        ? newRow.subjects.split(',').map(s => {
-          const [nameScore, max] = s.split('/');
-          const [name, score] = nameScore.split(':');
-          return { name: name.trim(), score: parseInt(score.trim()), max: parseInt(max.trim()) };
-        })
-        : [];
       const payload = {
+        admissionId: newRow.admissionId,
+        studentClass: newRow.studentClass,
+        section: newRow.section,
         rollNo: newRow.rollNo,
         studentName: newRow.studentName,
-        studentClass: newRow.studentClass,
-        attendance: newRow.attendance,
-        present: newRow.present,
-        absent: newRow.absent,
-        subjects: subjectsArray,
+        attendancePresent: newRow.attendancePresent,
+        attendanceAbsent: newRow.attendanceAbsent,
+        attendanceTotal: newRow.attendanceTotal,
         percentage: newRow.percentage,
         classTeacher: newRow.classTeacher,
+        quarterlyFee: newRow.quarterlyFee,
+        totalYearlyFee: newRow.totalYearlyFee,
         totalFees: newRow.totalFees,
         feesPaid: newRow.feesPaid,
         feesDue: newRow.feesDue,
       };
-      const res = await fetch(`${BACKEND_URL}/api/students`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+
+      const res = await fetch(`${BACKEND_URL}/api/studentdatabase`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error(await res.text() || 'Failed to save student');
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || "Failed to save student");
+      }
+
       await fetchStudents();
-      setAddingRow(false);
+      setAdding(false);
       setNewRow({
-        studentClass: '', rollNo: '', studentName: '', attendance: '', present: '', absent: '', subjects: '',
-        percentage: '', classTeacher: '', totalFees: '', feesPaid: '', feesDue: '',
+        admissionId: "",
+        studentClass: "",
+        section: "",
+        rollNo: "",
+        studentName: "",
+        attendancePresent: "",
+        attendanceAbsent: "",
+        attendanceTotal: "",
+        percentage: "",
+        classTeacher: "",
+        quarterlyFee: "",
+        totalYearlyFee: "",
+        totalFees: "",
+        feesPaid: "",
+        feesDue: "",
       });
     } catch (e) {
       Alert.alert("Save Error", e.message);
     }
   };
 
-  // All input cells in a single row as before
-  const renderEditableRow = () => (
-    <View style={[styles.row, { backgroundColor: "#d9f2d9", flexDirection: "row", marginBottom: 0 }]}>
+  const renderAddRow = () => (
+    <View style={[styles.row, { backgroundColor: "#d9f9d9", flexDirection: "row", marginBottom: 0 }]}>
       <TextInput
         style={[styles.inputCell, { width: widthArr[0] }]}
-        placeholder="Class"
-        value={newRow.studentClass}
-        onChangeText={text => onChangeNewRow("studentClass", text)}
-        ref={firstInputRef}
+        placeholder="Admission ID"
+        value={newRow.admissionId}
+        onChangeText={text => onChangeNewRow("admissionId", text)}
+        ref={refs.admissionIdRef}
         returnKeyType="next"
-        onSubmitEditing={() => rollNoRef.current?.focus()}
+        onSubmitEditing={() => refs.classRef.current?.focus()}
         blurOnSubmit={false}
       />
       <TextInput
         style={[styles.inputCell, { width: widthArr[1] }]}
-        placeholder="Roll No"
-        keyboardType="numeric"
-        value={newRow.rollNo}
-        onChangeText={text => onChangeNewRow("rollNo", text)}
-        ref={rollNoRef}
+        placeholder="Class"
+        value={newRow.studentClass}
+        onChangeText={text => onChangeNewRow("studentClass", text)}
+        ref={refs.classRef}
         returnKeyType="next"
-        onSubmitEditing={() => nameRef.current?.focus()}
+        onSubmitEditing={() => refs.sectionRef.current?.focus()}
         blurOnSubmit={false}
       />
       <TextInput
         style={[styles.inputCell, { width: widthArr[2] }]}
-        placeholder="Name"
-        value={newRow.studentName}
-        onChangeText={text => onChangeNewRow("studentName", text)}
-        ref={nameRef}
+        placeholder="Section"
+        value={newRow.section}
+        onChangeText={text => onChangeNewRow("section", text)}
+        ref={refs.sectionRef}
         returnKeyType="next"
-        onSubmitEditing={() => attendanceRef.current?.focus()}
+        onSubmitEditing={() => refs.rollNoRef.current?.focus()}
         blurOnSubmit={false}
       />
       <TextInput
         style={[styles.inputCell, { width: widthArr[3] }]}
-        placeholder="Attendance"
-        value={newRow.attendance}
-        onChangeText={text => onChangeNewRow("attendance", text)}
-        ref={attendanceRef}
+        placeholder="Roll No"
+        keyboardType="numeric"
+        value={newRow.rollNo}
+        onChangeText={text => onChangeNewRow("rollNo", text)}
+        ref={refs.rollNoRef}
         returnKeyType="next"
-        onSubmitEditing={() => presentRef.current?.focus()}
+        onSubmitEditing={() => refs.nameRef.current?.focus()}
         blurOnSubmit={false}
       />
       <TextInput
         style={[styles.inputCell, { width: widthArr[4] }]}
-        placeholder="Present"
-        keyboardType="numeric"
-        value={newRow.present}
-        onChangeText={text => onChangeNewRow("present", text)}
-        ref={presentRef}
+        placeholder="Name"
+        value={newRow.studentName}
+        onChangeText={text => onChangeNewRow("studentName", text)}
+        ref={refs.nameRef}
         returnKeyType="next"
-        onSubmitEditing={() => absentRef.current?.focus()}
+        onSubmitEditing={() => refs.attendancePresentRef.current?.focus()}
         blurOnSubmit={false}
       />
       <TextInput
         style={[styles.inputCell, { width: widthArr[5] }]}
-        placeholder="Absent"
+        placeholder="Present"
         keyboardType="numeric"
-        value={newRow.absent}
-        onChangeText={text => onChangeNewRow("absent", text)}
-        ref={absentRef}
+        value={newRow.attendancePresent}
+        onChangeText={text => onChangeNewRow("attendancePresent", text)}
+        ref={refs.attendancePresentRef}
         returnKeyType="next"
-        onSubmitEditing={() => subjectsRef.current?.focus()}
+        onSubmitEditing={() => refs.attendanceAbsentRef.current?.focus()}
         blurOnSubmit={false}
       />
       <TextInput
         style={[styles.inputCell, { width: widthArr[6] }]}
-        placeholder="Subjects (ex: Math:90/100,Eng:85/100)"
-        value={newRow.subjects}
-        onChangeText={text => onChangeNewRow("subjects", text)}
-        ref={subjectsRef}
+        placeholder="Absent"
+        keyboardType="numeric"
+        value={newRow.attendanceAbsent}
+        onChangeText={text => onChangeNewRow("attendanceAbsent", text)}
+        ref={refs.attendanceAbsentRef}
         returnKeyType="next"
-        onSubmitEditing={() => percentageRef.current?.focus()}
+        onSubmitEditing={() => refs.attendanceTotalRef.current?.focus()}
         blurOnSubmit={false}
       />
       <TextInput
         style={[styles.inputCell, { width: widthArr[7] }]}
-        placeholder="Percentage"
+        placeholder="Total"
         keyboardType="numeric"
-        value={newRow.percentage}
-        onChangeText={text => onChangeNewRow("percentage", text)}
-        ref={percentageRef}
+        value={newRow.attendanceTotal}
+        onChangeText={text => onChangeNewRow("attendanceTotal", text)}
+        ref={refs.attendanceTotalRef}
         returnKeyType="next"
-        onSubmitEditing={() => classTeacherRef.current?.focus()}
+        onSubmitEditing={() => refs.percentageRef.current?.focus()}
         blurOnSubmit={false}
       />
       <TextInput
         style={[styles.inputCell, { width: widthArr[8] }]}
-        placeholder="Class Teacher"
-        value={newRow.classTeacher}
-        onChangeText={text => onChangeNewRow("classTeacher", text)}
-        ref={classTeacherRef}
+        placeholder="Percentage"
+        keyboardType="numeric"
+        value={newRow.percentage}
+        onChangeText={text => onChangeNewRow("percentage", text)}
+        ref={refs.percentageRef}
         returnKeyType="next"
-        onSubmitEditing={() => totalFeesRef.current?.focus()}
+        onSubmitEditing={() => refs.classTeacherRef.current?.focus()}
         blurOnSubmit={false}
       />
       <TextInput
         style={[styles.inputCell, { width: widthArr[9] }]}
-        placeholder="Total Fees"
-        keyboardType="numeric"
-        value={newRow.totalFees}
-        onChangeText={text => onChangeNewRow("totalFees", text)}
-        ref={totalFeesRef}
+        placeholder="Teacher"
+        value={newRow.classTeacher}
+        onChangeText={text => onChangeNewRow("classTeacher", text)}
+        ref={refs.classTeacherRef}
         returnKeyType="next"
-        onSubmitEditing={() => feesPaidRef.current?.focus()}
+        onSubmitEditing={() => refs.quarterlyFeeRef.current?.focus()}
         blurOnSubmit={false}
       />
       <TextInput
         style={[styles.inputCell, { width: widthArr[10] }]}
-        placeholder="Fees Paid"
+        placeholder="Quarterly Fee"
         keyboardType="numeric"
-        value={newRow.feesPaid}
-        onChangeText={text => onChangeNewRow("feesPaid", text)}
-        ref={feesPaidRef}
+        value={newRow.quarterlyFee}
+        onChangeText={text => onChangeNewRow("quarterlyFee", text)}
+        ref={refs.quarterlyFeeRef}
         returnKeyType="next"
-        onSubmitEditing={() => feesDueRef.current?.focus()}
+        onSubmitEditing={() => refs.totalYearlyFeeRef.current?.focus()}
         blurOnSubmit={false}
       />
       <TextInput
         style={[styles.inputCell, { width: widthArr[11] }]}
-        placeholder="Fees Due"
+        placeholder="Yearly Fee"
+        keyboardType="numeric"
+        value={newRow.totalYearlyFee}
+        onChangeText={text => onChangeNewRow("totalYearlyFee", text)}
+        ref={refs.totalYearlyFeeRef}
+        returnKeyType="next"
+        onSubmitEditing={() => refs.totalFeesRef.current?.focus()}
+        blurOnSubmit={false}
+      />
+      <TextInput
+        style={[styles.inputCell, { width: widthArr[12] }]}
+        placeholder="Total Fees"
+        keyboardType="numeric"
+        value={newRow.totalFees}
+        onChangeText={text => onChangeNewRow("totalFees", text)}
+        ref={refs.totalFeesRef}
+        returnKeyType="next"
+        onSubmitEditing={() => refs.feesPaidRef.current?.focus()}
+        blurOnSubmit={false}
+      />
+      <TextInput
+        style={[styles.inputCell, { width: widthArr[13] }]}
+        placeholder="Paid"
+        keyboardType="numeric"
+        value={newRow.feesPaid}
+        onChangeText={text => onChangeNewRow("feesPaid", text)}
+        ref={refs.feesPaidRef}
+        returnKeyType="next"
+        onSubmitEditing={() => refs.feesDueRef.current?.focus()}
+        blurOnSubmit={false}
+      />
+      <TextInput
+        style={[styles.inputCell, { width: widthArr[14] }]}
+        placeholder="Due"
         keyboardType="numeric"
         value={newRow.feesDue}
         onChangeText={text => onChangeNewRow("feesDue", text)}
-        ref={feesDueRef}
+        ref={refs.feesDueRef}
       />
     </View>
   );
 
   return (
     <View style={styles.container}>
-      {/* Header Row with title + buttons */}
       <View style={styles.headerRow}>
         <Text style={styles.title}>Student Database </Text>
-        <View style={[styles.headerButtons, { paddingRight: 15 }]}>
-          <TouchableOpacity style={styles.headerBtn} onPress={() => setAddingRow(true)}>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity style={styles.headerBtn} onPress={() => setAdding(true)}>
             <Text style={styles.headerBtnText}>Add</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.headerBtn} onPress={onSaveNewRow} disabled={!addingRow}>
+          <TouchableOpacity style={styles.headerBtn} onPress={onSave} disabled={!adding}>
             <Text style={styles.headerBtnText}>Save</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.headerBtn} onPress={() => {
-            setAddingRow(false);
-            setNewRow({
-              studentClass: '', rollNo: '', studentName: '', attendance: '', present: '', absent: '', subjects: '',
-              percentage: '', classTeacher: '', totalFees: '', feesPaid: '', feesDue: '',
-            });
-          }} disabled={!addingRow}>
+          <TouchableOpacity
+            style={styles.headerBtn}
+            onPress={() => {
+              setAdding(false);
+              setNewRow({
+                admissionId: "",
+                studentClass: "",
+                section: "",
+                rollNo: "",
+                studentName: "",
+                attendancePresent: "",
+                attendanceAbsent: "",
+                attendanceTotal: "",
+                percentage: "",
+                classTeacher: "",
+                quarterlyFee: "",
+                totalYearlyFee: "",
+                totalFees: "",
+                feesPaid: "",
+                feesDue: "",
+              });
+            }}
+            disabled={!adding}
+          >
             <Text style={styles.headerBtnText}>Cancel</Text>
           </TouchableOpacity>
         </View>
       </View>
-
-      {loading ?
-        <ActivityIndicator size="large" color="#008000" style={{ marginTop: 40 }} /> :
-        <ScrollView horizontal showsHorizontalScrollIndicator style={{ flexGrow: 0 }}>
+      {loading ? (
+        <ActivityIndicator size="large" color="#008000" style={{ marginTop: 40 }} />
+      ) : (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
           <View>
-            {/* Table header */}
-            <Table borderStyle={{ borderWidth: 1, borderColor: '#c8e1ff' }}>
+            <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
               <Row
                 data={tableHead}
                 widthArr={widthArr}
@@ -287,50 +415,94 @@ export default function StudentDatabaseScreen() {
               />
             </Table>
             <ScrollView style={{ maxHeight: 500 }}>
-              <Table borderStyle={{ borderWidth: 1, borderColor: '#c8e1ff' }}>
-                {tableData.map((row, i) => (
+              <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
+                {tableData.map((row, index) => (
                   <Row
-                    key={i}
+                    key={index}
                     data={row}
                     widthArr={widthArr}
-                    style={[styles.row, i % 2 && { backgroundColor: '#F7F6E7' }]}
+                    style={[styles.row, index % 2 && { backgroundColor: "#F7F6E7" }]}
                     textStyle={styles.text}
                   />
                 ))}
               </Table>
-              {/* Make the add row horizontally scrollable */}
-              {addingRow && (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ backgroundColor: "#d9f2d9", minHeight: 44 }}>
-                  {renderEditableRow()}
+              {adding && (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ backgroundColor: "#d9f9d9" }}>
+                  {renderAddRow()}
                 </ScrollView>
               )}
             </ScrollView>
           </View>
         </ScrollView>
-      }
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9f9f9', padding: 10 },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#008000' },
-  headerButtons: { flexDirection: 'row', gap: 8, paddingRight: 15 },
-  headerBtn: { backgroundColor: '#008000', borderRadius: 6, paddingVertical: 6, paddingHorizontal: 14, marginLeft: 8 },
-  headerBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
-  head: { height: 40, backgroundColor: '#e1f9ed' },
-  headText: { fontWeight: 'bold', textAlign: 'center', color: '#222', flexWrap: 'nowrap' },
-  text: { color: '#222', fontSize: 14, textAlign: 'center' },
-  row: { height: 44, alignItems: 'center' },
+  container: {
+    flex: 1,
+    backgroundColor: "#f9f9f9",
+    padding: 10,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#008000",
+  },
+  headerButtons: {
+    flexDirection: "row",
+    gap: 8,
+    paddingRight: 15,
+  },
+  headerBtn: {
+    backgroundColor: "#008000",
+    borderRadius: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    marginLeft: 8,
+  },
+  headerBtnText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  head: {
+    height: 48,
+    backgroundColor: "#e1f9ed",
+  },
+  headText: {
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#222",
+    fontSize: 13,
+    paddingHorizontal: 5,
+    flexWrap: "wrap",
+  },
+  text: {
+    color: "#222",
+    fontSize: 14,
+    textAlign: "center",
+    paddingHorizontal: 4,
+  },
+  row: {
+    height: 44,
+    alignItems: "center",
+  },
   inputCell: {
     borderWidth: 1,
-    borderColor: '#998',
+    borderColor: "#998",
     paddingHorizontal: 6,
     fontSize: 14,
-    color: '#222',
-    textAlign: 'center',
+    color: "#222",
+    textAlign: "center",
     height: 40,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
 });

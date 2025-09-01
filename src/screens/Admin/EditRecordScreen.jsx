@@ -17,14 +17,14 @@ const EditRecordScreen = () => {
   const [studentName, setStudentName] = useState("");
   const [rollNo, setRollNo] = useState("");
   const [studentClass, setStudentClass] = useState("");
+  const [section, setSection] = useState("");        // <-- Added state
   const [formError, setFormError] = useState("");
 
   const handleSubmit = () => {
-    if (!studentName || !rollNo || !studentClass) {
+    if (!studentName || !rollNo || !studentClass || !section) {   // <-- Added "section"
       setFormError("Please fill all fields!");
       return;
     }
-    // Reset form/error and close the modal
     setFormError("");
     setModalVisible(false);
     // You may store student details to use in the main screen logic if required
@@ -60,6 +60,13 @@ const EditRecordScreen = () => {
                 value={studentClass}
                 onChangeText={setStudentClass}
                 placeholder="Class"
+                style={styles.input}
+                placeholderTextColor="#888"
+              />
+              <TextInput
+                value={section}
+                onChangeText={setSection}
+                placeholder="Section"
                 style={styles.input}
                 placeholderTextColor="#888"
               />
