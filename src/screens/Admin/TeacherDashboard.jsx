@@ -217,7 +217,7 @@ const TeacherDashboard = ({ navigation, route }) => {
             <View style={styles.btnRow}>
               <ButtonComp
                 text="View Fee Details"
-                onPress={() => Alert.alert("Feature coming soon!")}
+                onPress={() => navigation.navigate("FeeDetails")}
                 style={styles.greenButton}
                 textStyle={styles.greenButtonText}
               />

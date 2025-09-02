@@ -10,8 +10,10 @@ import AdminLoginScreen from './src/screens/Admin/AdminLoginScreen'
 import AdminRegistrationScreen from './src/screens/Admin/AdminRegistrationScreen'
 import EditRecordScreen from './src/screens/Admin/EditRecordScreen'
 import StudentDatabaseScreen from './src/screens/Admin/StudentDatabaseScreen'
+import FeeDetailsScreen from './src/screens/Admin/FeeDetailsScreen';
+import TeacherDashboard from './src/screens/Admin/TeacherDashboard';
 
-import TeacherDashboard from './src/screens/Admin/TeacherDashboard'
+
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -28,6 +30,7 @@ const App = () => {
         <Stack.Screen name="EditRecord" component={EditRecordScreen} />
         <Stack.Screen name='StudentDatabase' component={StudentDatabaseScreen}/>
         <Stack.Screen name="Report" component={ReportScreen} />
+        <Stack.Screen name="FeeDetails" component={FeeDetailsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
    
