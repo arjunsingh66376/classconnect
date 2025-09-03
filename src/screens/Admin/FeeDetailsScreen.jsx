@@ -42,13 +42,16 @@ const FeeDetailsScreen = ({ navigation }) => {
     setLoading(true);
 
     try {
-      const resp = await fetch(
-        `${BACKEND_URL}/api/student-fee?name=${encodeURIComponent(
-          studentName.trim()
-        )}&rollNo=${encodeURIComponent(rollNo.trim())}&class=${encodeURIComponent(
-          studentClass.trim()
-        )}&section=${encodeURIComponent(section.trim())}`
-      );
+      // Frontend fetch URL change
+const resp = await fetch(
+  `${BACKEND_URL}/api/studentdatabase/search?name=${encodeURIComponent(
+    studentName.trim()
+  )}&rollNo=${encodeURIComponent(rollNo.trim())}&class=${encodeURIComponent(
+    studentClass.trim()
+  )}&section=${encodeURIComponent(section.trim())}`
+);
+
+
 
       if (!resp.ok) throw new Error("Failed to fetch fee details. Student may not exist.");
 
